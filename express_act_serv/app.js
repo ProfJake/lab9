@@ -18,6 +18,7 @@ var qString = require("querystring");
 let dbManager = require('./dbManager');
 let express = require("express");
 let app = express();
+var ObjectID = require('mongodb').ObjectId;
 //This will take a set of properties that are coming in from a "POST"
 //And transform them into a document for inserting into the "activities"
 // collection
@@ -78,7 +79,7 @@ let page = '<html><head><title>The Activity Server</title></head>'+
 	try{
 	await result.data.forEach((item) =>{
 		let curAct = new tracker(item.activity.type, item.weight, item.distance, item.time);
-		page+=`Activity ${++count} ${item.user}: ${item.activity.type}, Distance: ${item.distance} | ${curAct.calculate()} Calories Burned <br>` ;
+	    page+=` Activity ${++count}:  ${item.user}  <a href="/activities/${item._id}">Details</a> | ${curAct.calculate()} Calories Burned <br>` ;
 	    });
 	} catch (e){
 	    page+=e.message;
@@ -110,6 +111,8 @@ function moveOn(postData){
 // These are NOT the same methods provided by the standard response object of HTTP
 //But instead are methods provided by Express.   A full list of methods that can
 //be used to end the cycle
+app.set('views', './views');
+app.set('view engine', 'pug');
 
 //GET ROUTES
 //These callback functions in "Express syntax" are called "middleware" functions.
@@ -136,6 +139,19 @@ app.get('/search', function(req, res, next){
     searchResp(null, res).then(
 	page=> {    res.send(page); }
     ).catch(next);
+});
+
+app.get('/activities/:actID', async function(req, res){
+    console.log("Requested: " + req.params.actID);
+    let col = dbManager.get().collection("activities");
+    try{
+	let result = await col.findOne({ _id: ObjectID(req.params.actID) });
+	console.log(result);
+
+    res.render('activity', { user: result.user, exercise: result.activity.type, distance: result.distance, weight: result.weight })    }catch(e){
+	console.log(e.message);
+    }
+;
 });
 var postData;
 
@@ -206,7 +222,7 @@ app.post('/search', function(req, res){
 	    let searchDoc = { [prop] : val };
 	    try{
 		let cursor = col.find(searchDoc,  {
-		    projection: { _id:0 , activity: 1, distance: 1, user: 1, time: 1, weight: 1}}).sort({distance: -1});
+		    projection: {  activity: 1, distance: 1, user: 1, time: 1, weight: 1}}).sort({distance: -1});
 		let resultOBJ={data: cursor, [prop]  : val, prop: prop};
 
 		searchResp(resultOBJ, res).then( page =>

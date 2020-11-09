@@ -15,6 +15,7 @@
   "dependencies": {
     "express": "^4.17.1",
     "mongodb": "^3.6.3",
+    "pug": "^3.0.0",
     "tracker": "file:../../../WkA/lab8/node_modules/tracker/tracker-0.1.5.tgz"
   },
   "devDependencies": {}
