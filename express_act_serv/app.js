@@ -148,10 +148,10 @@ app.get('/activities/:actID', async function(req, res){
 	let result = await col.findOne({ _id: ObjectID(req.params.actID) });
 	console.log(result);
 
-    res.render('activity', { user: result.user, exercise: result.activity.type, distance: result.distance, weight: result.weight })    }catch(e){
+	res.render('activity', { user: result.user, exercise: result.activity.type, distance: result.distance, weight: result.weight })
+    }catch(e){
 	console.log(e.message);
     }
-;
 });
 var postData;
 
