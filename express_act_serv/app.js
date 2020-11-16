@@ -140,9 +140,12 @@ app.get('/search', function(req, res, next){
 	page=> {    res.send(page); }
     ).catch(next);
 });
-
+app.param('actID', function(req, res, next, value){
+    console.log(`Request for activity ${value}`);
+    next();
+});
 app.get('/activities/:actID', async function(req, res){
-    console.log("Requested: " + req.params.actID);
+   
     let col = dbManager.get().collection("activities");
     try{
 	let result = await col.findOne({ _id: ObjectID(req.params.actID) });
