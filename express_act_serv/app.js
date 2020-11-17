@@ -1,3 +1,4 @@
+
 /*app.js
 Jake Levy
 Nov 2020
@@ -79,7 +80,7 @@ let page = '<html><head><title>The Activity Server</title></head>'+
 	try{
 	await result.data.forEach((item) =>{
 		let curAct = new tracker(item.activity.type, item.weight, item.distance, item.time);
-	    page+=` Activity ${++count}:  ${item.user}  <a href="/activities/${item._id}">Details</a> | ${curAct.calculate()} Calories Burned <br>` ;
+	    page+=` Activity ${++count}:  <a href="/users/${item.user}">${item.user}</a>  <a href="/activities/${item._id}">Details</a> | ${curAct.calculate()} Calories Burned <br>` ;
 	    });
 	} catch (e){
 	    page+=e.message;
@@ -143,6 +144,32 @@ app.get('/search', function(req, res, next){
 app.param('actID', function(req, res, next, value){
     console.log(`Request for activity ${value}`);
     next();
+});
+app.get('/users/:userID', async (req, res)=> {
+    let users = dbManager.get().collection("users");
+    let activities = dbManager.get().collection("activities");
+
+    try{
+
+	let user=await users.findOne({_id: req.params.userID});
+
+	let actCursor = activities.find({ user: req.params.userID});
+
+	let actArr = await actCursor.toArray();
+	let current;
+	for (item in actArr){
+	    current = new tracker(actArr[item].activity.type, actArr[item].weight, actArr[item].distance, actArr[item].time);
+	    actArr[item].calories = current.calculate();
+	    console.log("Calories: " + current.calculate());
+	}
+	res.render('user', { user: user, activities: actArr});
+    }catch (err){
+	console.log(err.message);
+	res.status(500).send("Error 500");
+    }
+
+    
+    
 });
 app.get('/activities/:actID', async function(req, res){
    

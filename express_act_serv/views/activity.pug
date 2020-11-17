@@ -1,9 +1,11 @@
 extends layout
 block content
   body
-
-    h1 #{user} Activity Details
-
+    if user
+      h2 #{user} Activity 
+    else
+      h2 Activity (Unknown User)
+      
     h3 Details
     p #{exercise}  #{weight} lbs | #{distance} miles
 
