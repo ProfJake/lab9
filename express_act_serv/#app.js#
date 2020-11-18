@@ -183,7 +183,7 @@ app.get('/activities/:actID', async function(req, res){
     }catch(e){
 	console.log(e.message);
     }
-});
+lea});
 var postData;
 
 //POST ROUTES
